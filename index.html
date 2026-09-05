@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jurnal Aktifitas Harian</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; background-color: #f8fafc; }
+        .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); }
+        .card-enter { animation: slideUp 0.4s ease-out forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* Warna Kartu yang Halus */
+        .card-urgent { background-color: #fef9c3; border-left: 4px solid #eab308; } /* Kuning Halus */
+        .card-done { background-color: #dcfce7; border-left: 4px solid #22c55e; } /* Hijau Halus */
+        .card-progress { background-color: #dbeafe; border-left: 4px solid #3b82f6; } /* Biru Halus */
+    </style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen relative">
+
+    <!-- LAYAR LOGIN -->
+    <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 transition-opacity">
+        <div class="glass p-8 rounded-2xl shadow-2xl w-11/12 max-w-md transform transition-all">
+            <div class="text-center mb-8">
+                <i class="fas fa-book-open text-4xl text-blue-600 mb-3"></i>
+                <h2 class="text-2xl font-bold text-gray-800">Masuk ke Jurnal</h2>
+            </div>
+            <form id="loginForm" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Username</label>
+                    <input type="text" id="username" required class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Password</label>
+                    <input type="password" id="password" required class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                </div>
+                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">Login</button>
+            </form>
+            <p id="loginMsg" class="text-red-500 text-sm text-center mt-4 hidden"></p>
+        </div>
+    </div>
+
+    <!-- DASHBOARD UTAMA -->
+    <div id="dashboardScreen" class="hidden min-h-screen flex flex-col pb-24">
+        <div class="sticky top-0 z-30 glass shadow-sm pb-4 rounded-b-xl border-b border-gray-200">
+            <!-- Header -->
+            <header class="px-6 py-4 flex justify-between items-center">
+                <h1 class="text-xl font-bold text-gray-800">Hai, <span id="userGreeting" class="text-blue-600">User</span>! 👋</h1>
+                <button onclick="logout()" class="text-sm text-red-500 hover:text-red-700 font-medium"><i class="fas fa-sign-out-alt mr-1"></i>Keluar</button>
+            </header>
+
+            <!-- Tabs -->
+            <div class="px-4">
+                <div class="flex space-x-2 bg-gray-200 p-1 rounded-xl w-full max-w-md mx-auto shadow-inner">
+                    <button onclick="switchTab('today')" id="tab-today" class="flex-1 py-2 text-sm font-semibold rounded-lg bg-white shadow text-blue-600 transition-all">Hari Ini</button>
+                    <button onclick="switchTab('all')" id="tab-all" class="flex-1 py-2 text-sm font-semibold rounded-lg text-gray-500 hover:text-gray-700 transition-all">Semua</button>
+                    <button onclick="switchTab('urgent')" id="tab-urgent" class="flex-1 py-2 text-sm font-semibold rounded-lg text-gray-500 hover:text-gray-700 transition-all">Urgent</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Multi Action Bar (Muncul saat checkbox dicentang) -->
+        <div id="multiActionBar" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-40 bg-gray-800 text-white px-6 py-3 rounded-full shadow-2xl flex items-center space-x-4 opacity-0 pointer-events-none transition-all duration-300">
+            <span id="selectedCount" class="text-sm font-medium">0 terpilih</span>
+            <div class="h-4 w-px bg-gray-500"></div>
+            <button onclick="deleteSelected()" class="text-red-400 hover:text-red-300 text-sm font-medium"><i class="fas fa-trash-alt mr-1"></i>Hapus</button>
+            <button onclick="clearSelection()" class="text-gray-300 hover:text-white text-sm font-medium"><i class="fas fa-times mr-1"></i>Batal</button>
+        </div>
+
+        <!-- List Kontainer -->
+        <main class="flex-1 px-4 mt-6 w-full max-w-3xl mx-auto space-y-4" id="journalContainer">
+            <!-- Kartu akan dirender di sini via JS -->
+            <div class="text-center text-gray-400 mt-10"><i class="fas fa-spinner fa-spin text-3xl"></i><p class="mt-2">Memuat data...</p></div>
+        </main>
+
+        <!-- Floating Action Button -->
+        <button onclick="openModal()" class="fixed bottom-8 right-8 w-14 h-14 bg-blue-600 text-white rounded-full shadow-[0_10px_25px_-5px_rgba(37,99,235,0.5)] hover:scale-110 transition-transform duration-300 flex items-center justify-center text-2xl z-40">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <!-- MODAL FORM INPUT -->
+    <div id="formModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-gray-900 bg-opacity-50 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl transform translate-y-full transition-transform duration-300" id="modalContent">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-xl font-bold text-gray-800" id="modalTitle">Tambah Jurnal</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            
+            <p id="draftAlert" class="text-xs text-amber-600 mb-3 hidden"><i class="fas fa-info-circle mr-1"></i>Memuat draf yang belum tersimpan.</p>
+            
+            <form id="journalForm" class="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+                <input type="hidden" id="journalId" name="id">
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Nama Aktifitas</label>
+                    <input type="text" id="nama" name="nama" required class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Waktu Input</label>
+                        <input type="datetime-local" id="waktuInput" name="waktuInput" required class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Waktu Selesai</label>
+                        <input type="datetime-local" id="waktuSelesai" name="waktuSelesai" class="w-full px-4 py-2 rounded-lg border border-gray-200 text-gray-500 focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Deadline</label>
+                        <input type="date" id="deadline" name="deadline" class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Status Urgent?</label>
+                        <select id="urgensi" name="urgensi" class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="Tidak">Tidak</option>
+                            <option value="Ya">Ya</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Catatan Tambahan</label>
+                    <textarea id="catatan" name="catatan" rows="3" class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                </div>
+                <button type="submit" id="submitBtn" class="w-full py-3 mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-300">
+                    <i class="fas fa-save mr-2"></i>Simpan Aktifitas
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pemuatan Script Terpisah -->
+    <script src="app.js"></script>
+</body>
+</html>
