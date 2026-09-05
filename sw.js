@@ -1,4 +1,4 @@
-const CACHE_NAME = 'jurnal-cache-v2';
+const CACHE_NAME = 'jurnal-cache-v3';
 
 // Install Service Worker
 self.addEventListener('install', (e) => {
