@@ -413,11 +413,18 @@ async function saveInlineNote(id, btn, event) {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
     btn.disabled = true;
     
-    const container = btn.closest('.note-container'); // Ubah di sini
+    const container = btn.closest('.note-container');
     const newCatatan = container.querySelector('textarea').value;
 
-    let journal = journals.find(j => j.id === id);
-    journal.catatan = newCatatan;
+    // PERBAIKAN BUG: Gunakan String() agar tidak ada masalah format Angka vs Teks
+    let journal = journals.find(j => String(j.id) === String(id));
     
-    await updateJournalServer(journal);
+    if (journal) {
+        journal.catatan = newCatatan;
+        await updateJournalServer(journal);
+    } else {
+        alert("Gagal menyimpan: Data referensi tidak ditemukan.");
+        btn.innerHTML = 'Simpan';
+        btn.disabled = false;
+    }
 }
