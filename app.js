@@ -428,3 +428,18 @@ async function saveInlineNote(id, btn, event) {
         btn.disabled = false;
     }
 }
+
+// --- FITUR HARD REFRESH ---
+async function forceRefresh(btn) {
+    // 1. Dapatkan ikon putar di dalam tombol
+    const icon = btn.querySelector('i');
+    
+    // 2. Putar ikonnya
+    icon.classList.add('fa-spin'); 
+    
+    // 3. Tarik ulang data segar dari server Google Apps Script
+    await fetchData(); 
+    
+    // 4. Hentikan putaran ikon setelah data selesai di-load
+    icon.classList.remove('fa-spin'); 
+}
