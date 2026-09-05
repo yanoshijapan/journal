@@ -245,9 +245,15 @@ function openModal(id = null) {
     document.getElementById('draftAlert').classList.add('hidden');
     document.getElementById('journalId').value = '';
 
-    if (id) {
+   if (id) {
         document.getElementById('modalTitle').innerText = 'Edit Jurnal';
-        const j = journals.find(x => x.id === id);
+        // PERBAIKAN BUG ID:
+        const j = journals.find(x => String(x.id) === String(id));
+        
+        if (!j) {
+            alert("Data tidak ditemukan.");
+            return;
+        }
         document.getElementById('journalId').value = j.id;
         document.getElementById('nama').value = j.nama;
         document.getElementById('waktuInput').value = j.waktuInput;
@@ -329,45 +335,61 @@ function formatDate(dateString) {
 // --- QUICK ACTIONS ---
 
 // Fitur 1: Tandai Selesai (Set tanggal selesai ke waktu saat ini)
+// --- QUICK ACTIONS ---
+
+// Fitur 1: Tandai Selesai
 async function quickMarkDone(id, event) {
-    event.stopPropagation(); // Mencegah modal edit ikut terbuka
+    event.stopPropagation();
     const button = event.currentTarget;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; // Animasi loading
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; 
     
-    let journal = journals.find(j => j.id === id);
+    // PERBAIKAN BUG: Pastikan format ID disamakan menjadi teks
+    let journal = journals.find(j => String(j.id) === String(id));
     
-    // Mengambil waktu lokal saat tombol diklik dan format ke YYYY-MM-DDTHH:mm
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    journal.waktuSelesai = now.toISOString().slice(0, 16);
-    
-    await updateJournalServer(journal);
+    if (journal) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        journal.waktuSelesai = now.toISOString().slice(0, 16);
+        await updateJournalServer(journal);
+    } else {
+        alert("Gagal: Data tidak ditemukan.");
+        fetchData(); // Mengembalikan tampilan jika error
+    }
 }
 
-// Fitur 2: Batal Selesai (Menghapus tanggal selesai)
+// Fitur 2: Batal Selesai
 async function quickUndoDone(id, event) {
     event.stopPropagation();
     const button = event.currentTarget;
     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     
-    let journal = journals.find(j => j.id === id);
-    journal.waktuSelesai = ''; // Kosongkan waktu selesai
+    let journal = journals.find(j => String(j.id) === String(id));
     
-    await updateJournalServer(journal);
+    if (journal) {
+        journal.waktuSelesai = ''; 
+        await updateJournalServer(journal);
+    } else {
+        alert("Gagal: Data tidak ditemukan.");
+        fetchData();
+    }
 }
 
-// Fitur 3: Toggle Urgensi (Ubah status jadi Ya/Tidak)
+// Fitur 3: Toggle Urgensi
 async function quickToggleUrgent(id, status, event) {
     event.stopPropagation();
     const button = event.currentTarget;
     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     
-    let journal = journals.find(j => j.id === id);
-    journal.urgensi = status;
+    let journal = journals.find(j => String(j.id) === String(id));
     
-    await updateJournalServer(journal);
+    if (journal) {
+        journal.urgensi = status;
+        await updateJournalServer(journal);
+    } else {
+        alert("Gagal: Data tidak ditemukan.");
+        fetchData();
+    }
 }
-
 // Fungsi utama penembak API khusus Quick Action
 async function updateJournalServer(payload) {
     try {
