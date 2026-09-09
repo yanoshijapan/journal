@@ -2,151 +2,257 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Jurnal Aktifitas Harian</title>
     <!-- PWA Manifest & Meta Tags -->
     <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#0E6B5C">
     <link rel="apple-touch-icon" href="./logojurnal2.png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Montserrat', sans-serif; background-color: #f8fafc; }
-        .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); }
-        .card-enter { animation: slideUp 0.4s ease-out forwards; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        /* Warna Kartu yang Halus */
-        .card-urgent { background-color: #fef9c3; border-left: 4px solid #eab308; } /* Kuning Halus */
-        .card-done { background-color: #dcfce7; border-left: 4px solid #22c55e; } /* Hijau Halus */
-        .card-progress { background-color: #dbeafe; border-left: 4px solid #3b82f6; } /* Biru Halus */
+        :root{
+            --paper:#F7F5EF;
+            --paper-card:#FFFFFF;
+            --ink:#20241F;
+            --ink-soft:#63695F;
+            --ink-faint:#9A9E92;
+            --accent:#0E6B5C;
+            --accent-dark:#0A5347;
+            --accent-soft:#E3F0EC;
+            --amber:#B45309;
+            --amber-soft:#FCEEDD;
+            --amber-border:#E8A33D;
+            --green:#15803D;
+            --green-soft:#E7F5EA;
+            --green-border:#86C79A;
+            --teal-soft:#EAF3F1;
+            --teal-border:#9FC7BE;
+            --danger:#B3261E;
+            --danger-soft:#FBE9E7;
+            --line:#E7E3D8;
+        }
+        *{ -webkit-tap-highlight-color: transparent; }
+        html{ scroll-behavior:smooth; }
+        body{
+            font-family:'Inter', sans-serif;
+            background-color: var(--paper);
+            background-image:
+                radial-gradient(circle at 100% 0%, rgba(14,107,92,0.06), transparent 45%),
+                radial-gradient(circle at 0% 100%, rgba(180,83,9,0.05), transparent 40%);
+            color: var(--ink);
+        }
+        .font-display{ font-family:'Fraunces', serif; }
+        ::selection{ background: var(--accent-soft); color: var(--accent-dark); }
+
+        /* Motion */
+        .card-enter{ animation: slideUp .45s cubic-bezier(.2,.8,.2,1) forwards; opacity:0; }
+        @keyframes slideUp{ from{ opacity:0; transform: translateY(14px) scale(.985); } to{ opacity:1; transform: translateY(0) scale(1); } }
+
+        @keyframes popIn{ from{ opacity:0; transform: translateY(24px) scale(.97);} to{ opacity:1; transform: translateY(0) scale(1);} }
+        .modal-pop{ animation: popIn .3s cubic-bezier(.2,.8,.2,1) forwards; }
+
+        @keyframes shimmer{ 0%{ background-position: -400px 0; } 100%{ background-position: 400px 0; } }
+        .skeleton{ background: linear-gradient(90deg, #ECE9DF 25%, #F5F3EB 37%, #ECE9DF 63%); background-size: 800px 100%; animation: shimmer 1.4s infinite linear; }
+
+        @keyframes toastIn{ from{ opacity:0; transform: translateY(12px) translateX(-50%);} to{ opacity:1; transform: translateY(0) translateX(-50%);} }
+        @keyframes toastOut{ from{ opacity:1; transform: translateY(0) translateX(-50%);} to{ opacity:0; transform: translateY(12px) translateX(-50%);} }
+        .toast-in{ animation: toastIn .25s ease-out forwards; }
+        .toast-out{ animation: toastOut .2s ease-in forwards; }
+
+        @keyframes chipPulse{ 0%{ box-shadow: 0 0 0 0 rgba(180,83,9,.35);} 100%{ box-shadow: 0 0 0 8px rgba(180,83,9,0);} }
+
+        /* Glass header */
+        .glass{ background: rgba(247,245,239,0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+
+        /* Cards */
+        .card-urgent{ background: var(--amber-soft); border-left: 4px solid var(--amber-border); }
+        .card-done{ background: var(--green-soft); border-left: 4px solid var(--green-border); }
+        .card-progress{ background: var(--paper-card); border-left: 4px solid var(--line); }
+        .activity-card{ transition: transform .18s ease, box-shadow .18s ease; }
+        .activity-card:hover{ transform: translateY(-2px); box-shadow: 0 10px 24px -12px rgba(32,36,31,0.18); }
+
+        /* Buttons */
+        .btn-accent{ background: var(--accent); color:#fff; }
+        .btn-accent:hover{ background: var(--accent-dark); }
+        .btn-ghost{ background: transparent; color: var(--ink-soft); }
+
+        /* Tabs (underline style) */
+        .tab-btn{ position:relative; color: var(--ink-faint); }
+        .tab-btn.active{ color: var(--accent-dark); }
+        .tab-btn .tab-underline{ position:absolute; left:8%; right:8%; bottom:-1px; height:2px; background: var(--accent); border-radius:2px; transform: scaleX(0); transition: transform .25s ease; }
+        .tab-btn.active .tab-underline{ transform: scaleX(1); }
+
+        /* Filter chip */
+        .chip{ border:1px solid var(--line); color: var(--ink-soft); background:#fff; transition: all .15s ease; }
+        .chip.active{ background: var(--amber-soft); border-color: var(--amber-border); color: var(--amber); animation: chipPulse .6s ease-out; }
+
+        input, select, textarea{ font-family:'Inter',sans-serif; }
+        input:focus, select:focus, textarea:focus{ outline:none; box-shadow: 0 0 0 3px var(--accent-soft); border-color: var(--accent) !important; }
+
+        /* Scrollbar (webkit) for filter row + modal */
+        .scroll-thin::-webkit-scrollbar{ height:6px; width:6px; }
+        .scroll-thin::-webkit-scrollbar-thumb{ background: var(--line); border-radius: 10px; }
+
+        .activity-block{ border:1px solid var(--line); border-radius: 16px; background:#FBFAF6; }
+
+        .fab-btn{ box-shadow: 0 12px 28px -8px rgba(14,107,92,0.55); }
+        .fab-btn:active{ transform: scale(.92); }
+
+        @media (prefers-reduced-motion: reduce){
+            *{ animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+        }
     </style>
 </head>
-<body class="text-gray-800 antialiased min-h-screen relative">
+<body class="text-[var(--ink)] antialiased min-h-screen relative">
 
     <!-- LAYAR LOGIN -->
-    <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 transition-opacity">
-        <div class="glass p-8 rounded-2xl shadow-2xl w-11/12 max-w-md transform transition-all">
+    <div id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-[var(--ink)]/40 transition-opacity px-4">
+        <div class="glass p-8 rounded-[24px] shadow-2xl w-full max-w-md border border-white/60">
             <div class="text-center mb-8">
-                <i class="fas fa-book-open text-4xl text-blue-600 mb-3"></i>
-                <h2 class="text-2xl font-bold text-gray-800">Masuk ke Jurnal</h2>
+                <div class="w-14 h-14 mx-auto mb-4 rounded-2xl flex items-center justify-center" style="background:var(--accent-soft);">
+                    <i class="fas fa-feather-pointed text-2xl" style="color:var(--accent-dark);"></i>
+                </div>
+                <h2 class="text-2xl font-display font-semibold text-[var(--ink)]">Masuk ke Jurnal</h2>
+                <p class="text-sm text-[var(--ink-soft)] mt-1">Catat aktifitasmu, satu hari satu langkah.</p>
             </div>
-            <form id="loginForm" class="space-y-5">
+            <form id="loginForm" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Username</label>
-                    <input type="text" id="username" required class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    <label class="block text-sm font-medium text-[var(--ink-soft)] mb-1">Username</label>
+                    <input type="text" id="username" required autocomplete="username" class="w-full px-4 py-3 rounded-xl bg-white border border-[var(--line)] transition-all">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Password</label>
-                    <input type="password" id="password" required class="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                    <label class="block text-sm font-medium text-[var(--ink-soft)] mb-1">Password</label>
+                    <input type="password" id="password" required autocomplete="current-password" class="w-full px-4 py-3 rounded-xl bg-white border border-[var(--line)] transition-all">
                 </div>
-                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300">Login</button>
+                <button type="submit" class="w-full py-3 btn-accent font-semibold rounded-xl shadow-lg transition-all duration-300">Login</button>
             </form>
-            <p id="loginMsg" class="text-red-500 text-sm text-center mt-4 hidden"></p>
+            <p id="loginMsg" class="text-[var(--danger)] text-sm text-center mt-4 hidden"></p>
         </div>
     </div>
 
     <!-- DASHBOARD UTAMA -->
-    <div id="dashboardScreen" class="hidden min-h-screen flex flex-col pb-24">
-        <div class="sticky top-0 z-30 glass shadow-sm pb-4 rounded-b-xl border-b border-gray-200">
+    <div id="dashboardScreen" class="hidden min-h-screen flex flex-col pb-28">
+        <div class="sticky top-0 z-30 glass shadow-sm border-b border-[var(--line)]">
             <!-- Header -->
-            <!-- Header -->
-            <header class="px-6 py-4 flex justify-between items-center">
-                <h1 class="text-xl font-bold text-gray-800">Hai, <span id="userGreeting" class="text-blue-600">User</span>! 👋</h1>
-                
-                <!-- Grup Tombol Kanan -->
-                <div class="flex items-center space-x-3">
-                    <!-- Tombol Refresh -->
-                    <button onclick="forceRefresh(this)" class="w-8 h-8 flex items-center justify-center bg-gray-100 hover:bg-blue-100 text-gray-600 hover:text-blue-600 rounded-full transition-colors shadow-sm tooltip" title="Refresh Data">
-                        <i class="fas fa-sync-alt"></i>
+            <header class="px-5 py-4 flex justify-between items-center max-w-5xl mx-auto w-full">
+                <div>
+                    <h1 class="text-xl font-display font-semibold text-[var(--ink)]">Hai, <span id="userGreeting" style="color:var(--accent-dark);">User</span> 👋</h1>
+                    <p id="todayDateLabel" class="text-xs text-[var(--ink-soft)] mt-0.5"></p>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <button onclick="forceRefresh(this)" class="w-9 h-9 flex items-center justify-center bg-white hover:bg-[var(--accent-soft)] text-[var(--ink-soft)] hover:text-[var(--accent-dark)] rounded-full transition-colors shadow-sm border border-[var(--line)]" title="Refresh Data">
+                        <i class="fas fa-sync-alt text-sm"></i>
                     </button>
-                    
-                    <!-- Tombol Keluar -->
-                    <button onclick="logout()" class="text-sm text-red-500 hover:text-red-700 font-medium bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors">
+                    <button onclick="logout()" class="text-sm font-medium bg-[var(--danger-soft)] hover:bg-red-100 px-3 py-2 rounded-xl transition-colors" style="color:var(--danger);">
                         <i class="fas fa-sign-out-alt mr-1"></i>Keluar
                     </button>
                 </div>
             </header>
 
+            <!-- Stats -->
+            <div class="px-5 pb-3 max-w-5xl mx-auto w-full">
+                <div id="statsBar" class="flex gap-2 overflow-x-auto scroll-thin pb-1">
+                    <!-- diisi via JS -->
+                </div>
+            </div>
+
             <!-- Tabs -->
-            <div class="px-4">
-                <div class="flex space-x-2 bg-gray-200 p-1 rounded-xl w-full max-w-md mx-auto shadow-inner">
-                    <button onclick="switchTab('today')" id="tab-today" class="flex-1 py-2 text-sm font-semibold rounded-lg bg-white shadow text-blue-600 transition-all">Hari Ini</button>
-                    <button onclick="switchTab('all')" id="tab-all" class="flex-1 py-2 text-sm font-semibold rounded-lg text-gray-500 hover:text-gray-700 transition-all">Semua</button>
-                    <button onclick="switchTab('urgent')" id="tab-urgent" class="flex-1 py-2 text-sm font-semibold rounded-lg text-gray-500 hover:text-gray-700 transition-all">Urgent</button>
+            <div class="px-5 pb-3 max-w-5xl mx-auto w-full">
+                <div class="flex space-x-1 border-b border-[var(--line)] w-full">
+                    <button onclick="switchTab('today')" id="tab-today" class="tab-btn active flex-1 py-2.5 text-sm font-semibold transition-all">Hari Ini<span class="tab-underline"></span></button>
+                    <button onclick="switchTab('all')" id="tab-all" class="tab-btn flex-1 py-2.5 text-sm font-semibold transition-all">Semua<span class="tab-underline"></span></button>
+                    <button onclick="switchTab('urgent')" id="tab-urgent" class="tab-btn flex-1 py-2.5 text-sm font-semibold transition-all">Urgent<span class="tab-underline"></span></button>
+                </div>
+            </div>
+
+            <!-- Filter Bar (khusus tab Semua) -->
+            <div id="filterBar" class="hidden px-5 pb-4 max-w-5xl mx-auto w-full">
+                <div class="relative mb-2">
+                    <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--ink-faint)] text-sm"></i>
+                    <input type="text" id="searchInput" placeholder="Cari aktifitas atau catatan..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[var(--line)] text-sm">
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <input type="date" id="filterDate" class="px-3 py-2 rounded-xl bg-white border border-[var(--line)] text-sm text-[var(--ink-soft)]">
+                    <select id="filterStatus" class="px-3 py-2 rounded-xl bg-white border border-[var(--line)] text-sm text-[var(--ink-soft)]">
+                        <option value="semua">Semua Status</option>
+                        <option value="selesai">Selesai</option>
+                        <option value="belum">Belum Selesai</option>
+                    </select>
+                    <button id="filterUrgentToggle" onclick="toggleUrgentFilter()" class="chip px-3 py-2 rounded-xl text-sm font-medium"><i class="fas fa-bolt mr-1"></i>Urgent</button>
+                    <button onclick="resetFilters()" class="px-3 py-2 rounded-xl text-sm font-medium btn-ghost hover:bg-white transition-colors"><i class="fas fa-rotate-left mr-1"></i>Reset</button>
                 </div>
             </div>
         </div>
 
         <!-- Multi Action Bar (Muncul saat checkbox dicentang) -->
-        <div id="multiActionBar" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-40 bg-gray-800 text-white px-6 py-3 rounded-full shadow-2xl flex items-center space-x-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div id="multiActionBar" class="fixed top-24 left-1/2 transform -translate-x-1/2 z-40 bg-[var(--ink)] text-white px-6 py-3 rounded-full shadow-2xl flex items-center space-x-4 opacity-0 pointer-events-none transition-all duration-300">
             <span id="selectedCount" class="text-sm font-medium">0 terpilih</span>
-            <div class="h-4 w-px bg-gray-500"></div>
-            <button onclick="deleteSelected()" class="text-red-400 hover:text-red-300 text-sm font-medium"><i class="fas fa-trash-alt mr-1"></i>Hapus</button>
+            <div class="h-4 w-px bg-white/30"></div>
+            <button onclick="deleteSelected()" class="text-red-300 hover:text-red-200 text-sm font-medium"><i class="fas fa-trash-alt mr-1"></i>Hapus</button>
             <button onclick="clearSelection()" class="text-gray-300 hover:text-white text-sm font-medium"><i class="fas fa-times mr-1"></i>Batal</button>
         </div>
 
         <!-- List Kontainer -->
-        <main class="flex-1 px-4 mt-6 w-full max-w-3xl mx-auto space-y-4" id="journalContainer">
-            <!-- Kartu akan dirender di sini via JS -->
-            <div class="text-center text-gray-400 mt-10"><i class="fas fa-spinner fa-spin text-3xl"></i><p class="mt-2">Memuat data...</p></div>
+        <main class="flex-1 px-5 mt-6 w-full max-w-3xl mx-auto" id="journalContainer">
+            <div class="text-center text-[var(--ink-faint)] mt-10"><i class="fas fa-spinner fa-spin text-3xl"></i><p class="mt-2">Memuat data...</p></div>
         </main>
 
         <!-- Floating Action Button -->
-        <button onclick="openModal()" class="fixed bottom-8 right-8 w-14 h-14 bg-blue-600 text-white rounded-full shadow-[0_10px_25px_-5px_rgba(37,99,235,0.5)] hover:scale-110 transition-transform duration-300 flex items-center justify-center text-2xl z-40">
+        <button onclick="openModal()" class="fab-btn fixed bottom-8 right-8 w-14 h-14 btn-accent rounded-full hover:scale-110 transition-transform duration-300 flex items-center justify-center text-2xl z-40">
             <i class="fas fa-plus"></i>
         </button>
     </div>
 
     <!-- MODAL FORM INPUT -->
-    <div id="formModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-gray-900 bg-opacity-50 hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-white w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl transform translate-y-full transition-transform duration-300" id="modalContent">
-            <div class="flex justify-between items-center mb-5">
-                <h3 class="text-xl font-bold text-gray-800" id="modalTitle">Tambah Jurnal</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+    <div id="formModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[var(--ink)]/40 hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm">
+        <div class="bg-[var(--paper)] w-full sm:max-w-xl rounded-t-[28px] sm:rounded-[24px] p-6 shadow-2xl translate-y-full sm:translate-y-6 opacity-0 sm:opacity-100 transition-all duration-300" id="modalContent">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-display font-semibold text-[var(--ink)]" id="modalTitle">Tambah Jurnal</h3>
+                <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 text-[var(--ink-soft)]"><i class="fas fa-times"></i></button>
             </div>
-            
-            <p id="draftAlert" class="text-xs text-amber-600 mb-3 hidden"><i class="fas fa-info-circle mr-1"></i>Memuat draf yang belum tersimpan.</p>
-            
-            <form id="journalForm" class="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+
+            <p id="draftAlert" class="text-xs mb-3 hidden px-3 py-2 rounded-lg" style="background:var(--amber-soft); color:var(--amber);"><i class="fas fa-info-circle mr-1"></i>Draf yang belum tersimpan berhasil dipulihkan.</p>
+
+            <form id="journalForm" class="flex flex-col max-h-[70vh]">
                 <input type="hidden" id="journalId" name="id">
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Nama Aktifitas</label>
-                    <input type="text" id="nama" name="nama" required class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none">
+
+                <div class="overflow-y-auto pr-1 scroll-thin space-y-4 pb-1">
+                    <div id="activityBlocksContainer" class="space-y-4"></div>
+
+                    <button type="button" id="addBlockBtn" onclick="addActivityBlock()" class="w-full py-2.5 rounded-xl border border-dashed border-[var(--accent)] text-[var(--accent-dark)] text-sm font-medium hover:bg-[var(--accent-soft)] transition-colors">
+                        <i class="fas fa-plus mr-1"></i>Aktifitas
+                    </button>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">Waktu Input</label>
-                        <input type="datetime-local" id="waktuInput" name="waktuInput" required class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">Waktu Selesai</label>
-                        <input type="datetime-local" id="waktuSelesai" name="waktuSelesai" class="w-full px-4 py-2 rounded-lg border border-gray-200 text-gray-500 focus:ring-2 focus:ring-blue-500 outline-none">
-                    </div>
+
+                <div class="pt-4 mt-2 border-t border-[var(--line)] bg-[var(--paper)]">
+                    <button type="submit" id="submitBtn" class="w-full py-3 btn-accent font-semibold rounded-xl shadow-lg transition-all duration-300">
+                        <i class="fas fa-save mr-2"></i>Simpan Aktifitas
+                    </button>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">Deadline</label>
-                        <input type="date" id="deadline" name="deadline" class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">Status Urgent?</label>
-                        <select id="urgensi" name="urgensi" class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none">
-                            <option value="Tidak">Tidak</option>
-                            <option value="Ya">Ya</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 mb-1">Catatan Tambahan</label>
-                    <textarea id="catatan" name="catatan" rows="3" class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
-                </div>
-                <button type="submit" id="submitBtn" class="w-full py-3 mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-300">
-                    <i class="fas fa-save mr-2"></i>Simpan Aktifitas
-                </button>
             </form>
         </div>
     </div>
+
+    <!-- CONFIRM MODAL -->
+    <div id="confirmModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-[var(--ink)]/40 hidden px-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-[20px] p-6 shadow-2xl modal-pop">
+            <div class="w-11 h-11 rounded-full flex items-center justify-center mb-3" style="background:var(--danger-soft);">
+                <i class="fas fa-triangle-exclamation" style="color:var(--danger);"></i>
+            </div>
+            <h4 id="confirmTitle" class="font-display font-semibold text-lg text-[var(--ink)] mb-1">Konfirmasi</h4>
+            <p id="confirmMessage" class="text-sm text-[var(--ink-soft)] mb-5">Apakah anda yakin?</p>
+            <div class="flex gap-3">
+                <button id="confirmNoBtn" class="flex-1 py-2.5 rounded-xl btn-ghost bg-black/5 hover:bg-black/10 font-medium text-sm">Batal</button>
+                <button id="confirmYesBtn" class="flex-1 py-2.5 rounded-xl text-white font-medium text-sm" style="background:var(--danger);">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toastContainer" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[70] flex flex-col items-center gap-2 pointer-events-none"></div>
 
     <!-- Pemuatan Script Terpisah -->
     <script src="app.js"></script>
