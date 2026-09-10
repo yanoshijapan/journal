@@ -143,12 +143,24 @@
                 </div>
 
                 <div class="flex items-center space-x-2">
+                    <button onclick="openNotifications()" id="notifBellBtn" class="relative w-9 h-9 flex items-center justify-center bg-white hover:bg-[var(--accent-soft)] text-[var(--ink-soft)] hover:text-[var(--accent-dark)] rounded-full transition-colors shadow-sm border border-[var(--line)]" title="Notifikasi">
+                        <i class="fas fa-bell text-sm"></i>
+                        <span id="notifBadge" class="hidden absolute -top-1 -right-1 text-[9px] font-bold text-white rounded-full w-4 h-4 flex items-center justify-center" style="background:var(--danger);">0</span>
+                    </button>
                     <button onclick="forceRefresh(this)" class="w-9 h-9 flex items-center justify-center bg-white hover:bg-[var(--accent-soft)] text-[var(--ink-soft)] hover:text-[var(--accent-dark)] rounded-full transition-colors shadow-sm border border-[var(--line)]" title="Refresh Data">
                         <i class="fas fa-sync-alt text-sm"></i>
                     </button>
-                    <button onclick="logout()" class="text-sm font-medium bg-[var(--danger-soft)] hover:bg-red-100 px-3 py-2 rounded-xl transition-colors" style="color:var(--danger);">
-                        <i class="fas fa-sign-out-alt mr-1"></i>Keluar
-                    </button>
+                    <div class="relative">
+                        <button id="hamburgerBtn" onclick="toggleHamburgerMenu()" class="w-9 h-9 flex items-center justify-center bg-white hover:bg-[var(--accent-soft)] text-[var(--ink-soft)] hover:text-[var(--accent-dark)] rounded-full transition-colors shadow-sm border border-[var(--line)]" title="Menu">
+                            <i class="fas fa-bars text-sm"></i>
+                        </button>
+                        <div id="hamburgerMenu" class="hidden absolute right-0 top-11 w-52 bg-white rounded-xl shadow-2xl border border-[var(--line)] py-2 z-50">
+                            <button onclick="openChatHistory()" class="w-full text-left px-4 py-2.5 text-sm text-[var(--ink-soft)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-dark)] transition-colors"><i class="fas fa-comments w-4 mr-2"></i>Riwayat Chat</button>
+                            <button onclick="openChangePassword()" class="w-full text-left px-4 py-2.5 text-sm text-[var(--ink-soft)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent-dark)] transition-colors"><i class="fas fa-key w-4 mr-2"></i>Ganti Password</button>
+                            <div class="h-px bg-[var(--line)] my-1"></div>
+                            <button onclick="logout()" class="w-full text-left px-4 py-2.5 text-sm font-medium transition-colors hover:bg-red-50" style="color:var(--danger);"><i class="fas fa-sign-out-alt w-4 mr-2"></i>Keluar</button>
+                        </div>
+                    </div>
                 </div>
             </header>
 
@@ -164,7 +176,7 @@
                 <div class="flex space-x-1 border-b border-[var(--line)] w-full">
                     <button onclick="switchTab('today')" id="tab-today" class="tab-btn active flex-1 py-2.5 text-sm font-semibold transition-all">Hari Ini<span class="tab-underline"></span></button>
                     <button onclick="switchTab('all')" id="tab-all" class="tab-btn flex-1 py-2.5 text-sm font-semibold transition-all">Semua<span class="tab-underline"></span></button>
-                    <button onclick="switchTab('urgent')" id="tab-urgent" class="tab-btn flex-1 py-2.5 text-sm font-semibold transition-all">Urgent<span class="tab-underline"></span></button>
+                    <button onclick="switchTab('team')" id="tab-team" class="tab-btn flex-1 py-2.5 text-sm font-semibold transition-all">Team<span class="tab-underline"></span></button>
                 </div>
             </div>
 
@@ -236,6 +248,15 @@
         </div>
     </div>
 
+    <!-- GENERIC POPUP (Team, Notifikasi, Chat, Request, Ganti Password, dsb) -->
+    <div id="genericModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[var(--ink)]/40 hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm">
+        <div id="genericModalContent" class="bg-[var(--paper)] w-full sm:max-w-xl h-[88vh] sm:h-auto sm:max-h-[85vh] rounded-t-[28px] sm:rounded-[24px] shadow-2xl flex flex-col translate-y-full sm:translate-y-6 opacity-0 sm:opacity-100 transition-all duration-300">
+            <div id="genericModalHeader" class="px-6 pt-6 pb-3 flex-shrink-0"></div>
+            <div id="genericModalBody" class="flex-1 overflow-y-auto px-6 scroll-thin"></div>
+            <div id="genericModalFooter" class="px-6 py-4 border-t border-[var(--line)] flex-shrink-0 hidden"></div>
+        </div>
+    </div>
+
     <!-- CONFIRM MODAL -->
     <div id="confirmModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-[var(--ink)]/40 hidden px-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-[20px] p-6 shadow-2xl modal-pop">
@@ -246,7 +267,7 @@
             <p id="confirmMessage" class="text-sm text-[var(--ink-soft)] mb-5">Apakah anda yakin?</p>
             <div class="flex gap-3">
                 <button id="confirmNoBtn" class="flex-1 py-2.5 rounded-xl btn-ghost bg-black/5 hover:bg-black/10 font-medium text-sm">Batal</button>
-                <button id="confirmYesBtn" class="flex-1 py-2.5 rounded-xl text-white font-medium text-sm" style="background:var(--danger);">Ya, Hapus</button>
+                <button id="confirmYesBtn" class="flex-1 py-2.5 rounded-xl text-white font-medium text-sm" style="background:var(--danger);">Ya, Terima</button>
             </div>
         </div>
     </div>
